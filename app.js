@@ -1,71 +1,183 @@
-const DAYS = ["ចន្ទ","អង្គារ","ពុធ","ព្រហស្បតិ៍","សុក្រ","សៅរ៍"];
+const DAYS = ["ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍", "អាទិត្យ"];
 const SUBJECTS = [
-"គណិតវិទ្យា","ភាសាខ្មែរ","រូបវិទ្យា","គីមីវិទ្យា","ជីវវិទ្យា",
-"ផែនដីវិទ្យា និងបរិស្ថានវិទ្យា","ប្រវត្តិវិទ្យា","ភូមិវិទ្យា",
-"សីលធម៌-ពលរដ្ឋវិទ្យា","ភាសាបរទេស (អង់គ្លេស ឬ បារាំង)",
-"បច្ចេកវិទ្យាព័ត៌មានវិទ្យា (ICT)","អប់រំកាយ និងកីឡា","សេដ្ឋកិច្ច","វេនសំអាត",
+  "គណិតវិទ្យា",
+  "ភាសាខ្មែរ",
+  "រូបវិទ្យា",
+  "គីមីវិទ្យា",
+  "ជីវវិទ្យា",
+  "ផែនដីវិទ្យា និងបរិស្ថានវិទ្យា",
+  "ប្រវត្តិវិទ្យា",
+  "ភូមិវិទ្យា",
+  "សីលធម៌-ពលរដ្ឋវិទ្យា",
+  "ភាសាបរទេស (អង់គ្លេស ឬ បារាំង)",
+  "បច្ចេកវិទ្យាព័ត៌មានវិទ្យា (ICT)",
+  "អប់រំកាយ និងកីឡា",
+  "សេដ្ឋកិច្ច",
+  "វេនសំអាត"
 ];
-const HOURS = Array.from({length:12},(_,i)=>i+6);
-let currentName = "";
+const HOURS = Array.from({ length: 12 }, (_, i) => i + 6);
+const STORAGE_KEY = "my-personal-study-timetable-v1";
 const $ = id => document.getElementById(id);
-function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2400)}
-function setState(message){$("saveState").textContent=message}
-function makeTable(schedule={}){
-  const head=$("scheduleTable").querySelector("thead tr");
-  head.innerHTML='<th class="time-col">ម៉ោង / ថ្ងៃ</th>'+DAYS.map(d=>`<th>${d}</th>`).join("");
-  const body=$("scheduleTable").querySelector("tbody");body.innerHTML="";
-  HOURS.forEach(hour=>{
-    const tr=document.createElement("tr");
-    const time=document.createElement("td");time.className="time";
-    time.textContent=`${String(hour).padStart(2,"0")}:00 - ${String(hour+1).padStart(2,"0")}:00`;tr.appendChild(time);
-    DAYS.forEach((day,di)=>{
-      const td=document.createElement("td"),select=document.createElement("select");
-      select.setAttribute("aria-label",`${day} ${hour}:00`);
-      select.dataset.key=`${day}_${hour}`;
-      const blank=document.createElement("option");blank.value="";blank.textContent="— ជ្រើសរើស —";select.appendChild(blank);
-      SUBJECTS.forEach(subject=>{const opt=document.createElement("option");opt.value=subject;opt.textContent=subject;select.appendChild(opt)});
-      select.value=schedule[select.dataset.key]||"";
-      select.classList.toggle("has-value",!!select.value);
-      select.addEventListener("change",()=>{select.classList.toggle("has-value",!!select.value);setState("មានការកែប្រែមិនទាន់រក្សាទុក")});
-      td.appendChild(select);tr.appendChild(td);
-    });body.appendChild(tr);
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 2300);
+}
+
+function readSchedule() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveSchedule() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collectSchedule()));
+  $("saveState").textContent = "បានរក្សាទុកដោយស្វ័យប្រវត្តិ";
+}
+
+function collectSchedule() {
+  const result = {};
+  document.querySelectorAll("#scheduleTable select").forEach(select => {
+    if (select.value) result[select.dataset.key] = select.value;
+  });
+  return result;
+}
+
+function makeTable(schedule = {}) {
+  $("tableHead").innerHTML =
+    '<th class="time-col">ម៉ោង / ថ្ងៃ</th>' +
+    DAYS.map(day => `<th>${day}</th>`).join("");
+
+  const body = $("tableBody");
+  body.innerHTML = "";
+
+  HOURS.forEach(hour => {
+    const row = document.createElement("tr");
+    const time = document.createElement("td");
+    time.className = "time";
+    time.textContent =
+      `${String(hour).padStart(2, "0")}:00 - ${String(hour + 1).padStart(2, "0")}:00`;
+    row.appendChild(time);
+
+    DAYS.forEach(day => {
+      const cell = document.createElement("td");
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", `${day} ${hour}:00`);
+      select.dataset.key = `${day}_${hour}`;
+
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "— ជ្រើសរើស —";
+      select.appendChild(empty);
+
+      SUBJECTS.forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject;
+        option.textContent = subject;
+        select.appendChild(option);
+      });
+
+      select.value = schedule[select.dataset.key] || "";
+      select.classList.toggle("has-value", Boolean(select.value));
+      select.addEventListener("change", () => {
+        select.classList.toggle("has-value", Boolean(select.value));
+        $("saveState").textContent = "កំពុងរក្សាទុក...";
+        saveSchedule();
+      });
+
+      cell.appendChild(select);
+      row.appendChild(cell);
+    });
+
+    body.appendChild(row);
   });
 }
-function collectSchedule(){const result={};document.querySelectorAll("#scheduleTable select").forEach(s=>{if(s.value)result[s.dataset.key]=s.value});return result}
-async function api(url,data){const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const json=await res.json();if(!res.ok||!json.ok)throw new Error(json.error||"មានបញ្ហា");return json}
-$("signinForm").addEventListener("submit",async e=>{
-  e.preventDefault();const name=$("studentName").value.trim();if(!name)return;
-  try{const result=await api("/api/signin",{name});currentName=name;$("welcomeName").textContent=name;makeTable(result.user.schedule||{});$("signinPanel").hidden=true;$("workspace").hidden=false;setState("ទិន្នន័យបានផ្ទុក");}
-  catch(err){toast(err.message)}
-});
-$("saveBtn").addEventListener("click",async()=>{
-  if(!currentName)return;$("saveBtn").disabled=true;
-  try{await api("/api/save",{name:currentName,schedule:collectSchedule()});setState("បានរក្សាទុក");toast("បានរក្សាទុកក្នុង user.json");}
-  catch(err){toast(err.message);setState("រក្សាទុកមិនបាន")}
-  finally{$("saveBtn").disabled=false}
-});
-$("switchBtn").addEventListener("click",()=>{$("workspace").hidden=true;$("signinPanel").hidden=false;$("studentName").value="";currentName="";$("studentName").focus()});
 
+$("clearBtn").addEventListener("click", () => {
+  if (!confirm("តើអ្នកចង់សម្អាតកាលវិភាគទាំងអស់មែនទេ?")) return;
+  document.querySelectorAll("#scheduleTable select").forEach(select => {
+    select.value = "";
+    select.classList.remove("has-value");
+  });
+  saveSchedule();
+  toast("បានសម្អាតកាលវិភាគ");
+});
 
-$("pngBtn").addEventListener("click",async()=>{
-  if(!currentName)return;
-  if(typeof html2canvas!=="function"){
-    toast("មិនអាចផ្ទុក PNG exporter បានទេ។ សូមពិនិត្យ Internet ហើយសាកម្ដងទៀត។");
+$("pngBtn").addEventListener("click", async () => {
+  if (typeof html2canvas !== "function") {
+    toast("មិនអាចផ្ទុក PNG exporter បានទេ។ សូមពិនិត្យ Internet។");
     return;
   }
-  const btn=$("pngBtn");btn.disabled=true;btn.textContent="កំពុងបង្កើត...";
-  try{
-    const target=$("scheduleTable");
-    const canvas=await html2canvas(target,{
-      backgroundColor:"#ffffff",scale:2,useCORS:true,
-      windowWidth:Math.max(document.documentElement.clientWidth,target.scrollWidth)
+
+  const button = $("pngBtn");
+  const oldText = button.textContent;
+  button.disabled = true;
+  button.textContent = "កំពុងបង្កើត PNG...";
+
+  try {
+    // Build a clean export copy: remove unselected rows, but retain empty cells
+    // within selected rows so the timetable still has spaces to fill in later.
+    const source = $("scheduleTable");
+    const clone = source.cloneNode(true);
+    clone.querySelectorAll("tbody tr").forEach(row => {
+      const hasSubject = [...row.querySelectorAll("select")].some(s => s.value);
+      if (!hasSubject) {
+        row.remove();
+        return;
+      }
+
+      row.querySelectorAll("td").forEach(cell => {
+        const select = cell.querySelector("select");
+        if (!select) return;
+        const value = select.value;
+        cell.innerHTML = "";
+        if (value) {
+          const subject = document.createElement("div");
+          subject.className = "export-subject";
+          subject.textContent = value;
+          cell.appendChild(subject);
+        } else {
+          cell.classList.add("export-empty");
+        }
+      });
     });
-    const link=document.createElement("a");
-    const safeName=currentName.replace(/[^\p{L}\p{N}_-]+/gu,"_");
-    link.download=`timetable_${safeName}.png`;
-    link.href=canvas.toDataURL("image/png");
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "export-sheet";
+    const title = document.createElement("h1");
+    title.textContent = "កាលវិភាគសិក្សាផ្ទាល់ខ្លួន";
+    const meta = document.createElement("p");
+    meta.textContent = "ម៉ោងសិក្សា៖ 06:00 – 18:00";
+    wrapper.append(title, meta, clone);
+    document.body.appendChild(wrapper);
+
+    const canvas = await html2canvas(wrapper, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      width: wrapper.scrollWidth,
+      windowWidth: Math.max(document.documentElement.clientWidth, wrapper.scrollWidth)
+    });
+
+    const link = document.createElement("a");
+    link.download = "my-study-timetable.png";
+    link.href = canvas.toDataURL("image/png");
     link.click();
-    toast("បានទាញយកតារាងជា PNG ហើយ");
-  }catch(err){toast("បង្កើតរូបភាពមិនបាន សូមសាកម្ដងទៀត")}
-  finally{btn.disabled=false;btn.textContent="ទាញយក PNG"}
+    wrapper.remove();
+    toast("បានទាញយកកាលវិភាគជា PNG");
+  } catch (error) {
+    document.querySelector(".export-sheet")?.remove();
+    console.error(error);
+    toast("បង្កើត PNG មិនបាន សូមសាកម្ដងទៀត");
+  } finally {
+    button.disabled = false;
+    button.textContent = oldText;
+  }
 });
+
+makeTable(readSchedule());

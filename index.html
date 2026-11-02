@@ -3,68 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3459c7">
-  <title>តារាងកាលវិភាគសិក្សា</title>
+  <meta name="theme-color" content="#edf2ff">
+  <title>កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="eyebrow">SCHOOL PLANNER</div>
-      <h1>កាលវិភាគសិក្សា</h1>
-      <p>បង្កើត និងរក្សាទុកតារាងមុខវិជ្ជារបស់អ្នក</p>
-    </div>
-  </header>
+  <main class="page">
+    <header class="page-header">
+      <p class="eyebrow">MY STUDY PLANNER</p>
+      <h1>កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</h1>
+      <p class="subtitle">រៀបចំពេលវេលាសិក្សារបស់អ្នកប្រចាំសប្តាហ៍</p>
+    </header>
 
-  <main class="container">
-    <section class="panel signin" id="signinPanel">
-      <div>
-        <h2>ចូលប្រើប្រាស់</h2>
-        <p class="muted">សរសេរឈ្មោះរបស់អ្នក ដើម្បីបើកតារាងផ្ទាល់ខ្លួន</p>
-      </div>
-      <form id="signinForm">
-        <label for="studentName">ឈ្មោះ</label>
-        <div class="signin-row">
-          <input id="studentName" maxlength="50" autocomplete="name" placeholder="បញ្ចូលឈ្មោះ..." required>
-          <button type="submit">Sign in</button>
-        </div>
-      </form>
-    </section>
-
-    <section id="workspace" hidden>
-      <div class="toolbar panel">
+    <section class="schedule-card" aria-label="កាលវិភាគសិក្សា">
+      <div class="schedule-top">
         <div>
-          <div class="muted small">កាលវិភាគរបស់</div>
-          <h2 id="welcomeName">-</h2>
+          <h2>កាលវិភាគសិក្សា</h2>
+          <p class="hint">ជ្រើសរើសមុខវិជ្ជានៅក្នុងប្រអប់នីមួយៗ</p>
         </div>
-        <div class="toolbar-actions">
-          <span class="save-state" id="saveState">មិនទាន់រក្សាទុក</span>
-          <button class="secondary" id="saveBtn" type="button">រក្សាទុក</button>
-          <button class="export" id="pngBtn" type="button">ទាញយក PNG</button>
-          <button class="light" id="switchBtn" type="button">ប្តូរឈ្មោះ</button>
-        </div>
+        <div class="time-label">ម៉ោង៖ 06:00 – 18:00</div>
       </div>
 
-      <div class="panel table-panel">
-        <div class="table-heading">
-          <div>
-            <h2>តារាងមុខវិជ្ជា</h2>
-            <p class="muted">ចុចលើប្រអប់នីមួយៗ ហើយជ្រើសរើសមុខវិជ្ជា</p>
-          </div>
-          <div class="time-label">ម៉ោងសិក្សា៖ 06:00 – 18:00</div>
-        </div>
-        <div class="table-wrap">
-          <table id="scheduleTable">
-            <thead><tr><th class="time-col">ម៉ោង / ថ្ងៃ</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="legend"><span class="dot"></span> ប្រអប់ទទេ = មិនទាន់ជ្រើសរើសមុខវិជ្ជា</div>
+      <div class="table-wrap">
+        <table id="scheduleTable">
+          <thead><tr id="tableHead"></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
       </div>
-      <footer>ទិន្នន័យត្រូវបានរក្សាទុកក្នុង <code>user.json</code> នៅលើ Server</footer>
+
+      <div class="actions">
+        <span id="saveState" class="save-state" role="status">បានរក្សាទុកក្នុង Browser</span>
+        <div class="buttons">
+          <button id="clearBtn" class="button button-light" type="button">សម្អាតតារាង</button>
+          <button id="pngBtn" class="button button-primary" type="button">ទាញយក PNG</button>
+        </div>
+      </div>
+      <p class="footnote">ទិន្នន័យរក្សាទុកនៅក្នុង Browser របស់ឧបករណ៍នេះដោយស្វ័យប្រវត្តិ។</p>
     </section>
   </main>
-  <div class="toast" id="toast" role="status"></div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="app.js"></script>
 </body>
