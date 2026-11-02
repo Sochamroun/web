@@ -27,14 +27,6 @@ function toast(message) {
   toast.timer = setTimeout(() => el.classList.remove("show"), 2300);
 }
 
-function readSchedule() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
 function saveSchedule() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(collectSchedule()));
   $("saveState").textContent = "បានរក្សាទុកដោយស្វ័យប្រវត្តិ";
