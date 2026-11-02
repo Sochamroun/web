@@ -3,50 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#edf2ff">
+  <meta name="theme-color" content="#f3f6fc">
   <title>កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <main class="page">
-    <header class="page-header">
-      <p class="eyebrow">MY STUDY PLANNER</p>
+    <section id="loginView" class="login-card">
+      <div class="logo">📚</div>
       <h1>កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</h1>
-      <p class="subtitle">រៀបចំពេលវេលាសិក្សារបស់អ្នកប្រចាំសប្តាហ៍</p>
-    </header>
+      <p class="muted">សូមបញ្ចូលឈ្មោះរបស់អ្នក ដើម្បីចាប់ផ្តើម</p>
+      <form id="loginForm">
+        <label for="userName">ឈ្មោះអ្នកប្រើ</label>
+        <input id="userName" type="text" maxlength="40" placeholder="បញ្ចូលឈ្មោះ..." required autocomplete="name">
+        <button class="primary full" type="submit">Sign In</button>
+      </form>
+      <p class="tiny">ទិន្នន័យត្រូវបានរក្សាទុកក្នុង Browser របស់ឧបករណ៍នេះ។</p>
+    </section>
 
-    <section class="schedule-card" aria-label="កាលវិភាគសិក្សា">
-      <div class="schedule-top">
+    <section id="appView" hidden>
+      <header class="topbar">
         <div>
-          <h2>កាលវិភាគសិក្សា</h2>
-          <p class="hint">ជ្រើសរើសមុខវិជ្ជានៅក្នុងប្រអប់នីមួយៗ</p>
+          <div class="eyebrow">PERSONAL PLANNER</div>
+          <h1>កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</h1>
+          <p class="muted" id="welcomeText"></p>
         </div>
-        <div class="time-label">ម៉ោង៖ 06:00 – 18:00</div>
-      </div>
+        <button id="signOutBtn" class="light-btn">Sign out</button>
+      </header>
 
-      <div class="table-wrap">
-        <table id="scheduleTable">
-          <thead><tr id="tableHead"></tr></thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-
-      <div class="actions">
-        <span id="saveState" class="save-state" role="status">បានរក្សាទុកក្នុង Browser</span>
-        <div class="buttons">
-          <button id="clearBtn" class="button button-light" type="button">សម្អាតតារាង</button>
-          <button id="pngBtn" class="button button-primary" type="button">ទាញយក PNG</button>
+      <section class="toolbar">
+        <div class="field">
+          <label for="studentName">ឈ្មោះ</label>
+          <input id="studentName" type="text" maxlength="40">
         </div>
-      </div>
-      <p class="footnote">ទិន្នន័យរក្សាទុកនៅក្នុង Browser របស់ឧបករណ៍នេះដោយស្វ័យប្រវត្តិ។</p>
+        <div class="field">
+          <label for="scheduleTitle">ចំណងជើងកាលវិភាគ</label>
+          <input id="scheduleTitle" type="text" value="កាលវិភាគសិក្សាផ្ទាល់ខ្លួន">
+        </div>
+        <div class="actions">
+          <button id="saveBtn" class="primary">រក្សាទុក</button>
+          <button id="pngBtn" class="success">ទាញយកជា PNG</button>
+        </div>
+      </section>
+
+      <section id="scheduleCard" class="schedule-card">
+        <div class="schedule-heading">
+          <h2 id="previewTitle">កាលវិភាគសិក្សាផ្ទាល់ខ្លួន</h2>
+          <div class="schedule-meta">
+            <span>សិស្ស៖ <strong id="previewName">មិនទាន់បញ្ចូល</strong></span>
+            <span>ម៉ោង៖ 06:00 - 18:00 | ថ្ងៃ៖ ចន្ទ - សៅរ៍</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="scheduleTable">
+            <thead>
+              <tr>
+                <th class="time-col">ម៉ោង / ថ្ងៃ</th>
+                <th>ចន្ទ</th><th>អង្គារ</th><th>ពុធ</th>
+                <th>ព្រហស្បតិ៍</th><th>សុក្រ</th><th>សៅរ៍</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+        <div class="schedule-footer">កាលវិភាគសិក្សាផ្ទាល់ខ្លួន • Personal Study Planner</div>
+      </section>
+      <p class="hint">ចុចលើ Dropdown ក្នុងតារាង ដើម្បីជ្រើសរើសមុខវិជ្ជា។ ការកែប្រែត្រូវបាន Auto Save។</p>
     </section>
   </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <div id="toast" class="toast" role="status"></div>
   <script src="app.js"></script>
 </body>
 </html>
